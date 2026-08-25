@@ -19,9 +19,20 @@ class ImeToggleButton extends PanelMenu.Button {
 
         this._label = new St.Label({
             style_class: 'ime-toggle-label',
+            x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
-        this.add_child(this._label);
+
+        // 背景と寸法はチップ側に持たせる。St.Label の高さは描画に使われる
+        // フォントの metrics で決まり、A（Cantarell）と あ（CJK フォントへ
+        // フォールバック）では行の高さが違う。背景をラベルに直接付けると、
+        // 切り替えるたびにチップの高さが変わってしまう。
+        this._chip = new St.Bin({
+            style_class: 'ime-toggle-chip',
+            child: this._label,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        this.add_child(this._chip);
 
         this._inputSourceManager = getInputSourceManager();
         this._sourceChangedId = this._inputSourceManager.connect(
@@ -75,9 +86,10 @@ class ImeToggleButton extends PanelMenu.Button {
         const isJapanese = !!source?.id?.startsWith(JAPANESE_ID_PREFIX);
 
         this._label.text = isJapanese ? 'あ' : 'A';
-        // 文字だけでなく背景色でも区別する（遠目で判別できるように）
-        this._label.remove_style_class_name(isJapanese ? 'latin' : 'japanese');
-        this._label.add_style_class_name(isJapanese ? 'japanese' : 'latin');
+        // 文字だけでなく背景色と文字色の極性でも区別する（遠目でも、
+        // 色覚型を問わず判別できるように）
+        this._chip.remove_style_class_name(isJapanese ? 'latin' : 'japanese');
+        this._chip.add_style_class_name(isJapanese ? 'japanese' : 'latin');
     }
 
     _disconnectSourceChanged() {

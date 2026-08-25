@@ -8,8 +8,15 @@ US配列キーボードには半角/全角キーがなく、`Super+Space` によ
 必要があります。この拡張は現在のモードを常に画面に表示し、その表示自体を
 クリックできるようにすることで、その負荷をなくします。
 
-- 英語 (US) → **A**（青）
-- 日本語 (Mozc) → **あ**（オレンジ）
+- 英語 (US) → **A**（青地に白文字）
+- 日本語 (Mozc) → **あ**（オレンジ地に黒文字）
+
+| 英語 (US) | 日本語 (Mozc) |
+|---|---|
+| ![トップバーに青地へ白文字で A と表示されている様子](docs/images/screenshot-en.png) | ![トップバーにオレンジ地へ黒文字で あ と表示されている様子](docs/images/screenshot-ja.png) |
+
+文字色を白と黒で反転させているのは、色が判別しにくい場合でも状態の違いが
+伝わるようにするためです。
 
 `Super+Space` など他の手段で切り替えた場合も、表示は自動で追従します。
 
@@ -76,7 +83,18 @@ ibus write-cache; ibus restart
 | やりたいこと | 編集箇所 |
 |---|---|
 | 表示位置を変える | `extension.js` の `addToStatusArea` 第4引数（`'left'` / `'center'` / `'right'`） |
-| 文字サイズ・色を変える | `stylesheet.css` |
+| 背景色を変える | `stylesheet.css` の `.ime-toggle-chip.latin` / `.ime-toggle-chip.japanese` |
+| 文字色を変える | `stylesheet.css` の `.ime-toggle-chip.latin .ime-toggle-label` / `.ime-toggle-chip.japanese .ime-toggle-label` |
+| 文字サイズを変える | `stylesheet.css` の `.ime-toggle-label` |
+| ボタンの大きさを変える | `stylesheet.css` の `.ime-toggle-chip` の `height` / `min-width` |
+
+背景と文字は別の要素に分かれています。`.ime-toggle-chip` が背景・角丸・寸法を、
+`.ime-toggle-label` が文字を担当します。チップの高さを固定しているのは、
+`A` と `あ` で使われるフォントが異なり、文字に合わせると切り替えるたびに
+ボタンの大きさが変わってしまうためです。
+
+配色を変更する場合は、文字と背景のコントラスト比を 4.5:1 以上に保ってください。
+現在の値は英語が 4.77:1、日本語が 10.58:1 です。
 
 編集後はログアウト→ログインで反映されます。
 
