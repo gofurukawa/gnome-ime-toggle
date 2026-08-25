@@ -9,12 +9,15 @@
     text-align: center;
 }
 
-/* 英語 (US) */
+/* 英語 (US) — GNOME Blue 4。白文字とのコントラスト 4.77:1 */
 .ime-toggle-label.latin {
     background-color: #1c71d8;
 }
 
-/* 日本語 (Mozc) */
+/* 日本語 (Mozc) — GNOME Orange 2。黒文字とのコントラスト 10.58:1。
+   文字色を黒に反転させることで、青との明度差が小さくても
+   （グレースケールでも）状態の違いが伝わる。 */
 .ime-toggle-label.japanese {
-    background-color: #e66100;
+    background-color: #ffa348;
+    color: #000000;
 }
