@@ -27,10 +27,28 @@ class ImeToggleButton extends PanelMenu.Button {
         this._sourceChangedId = this._inputSourceManager.connect(
             'current-source-changed', () => this._sync());
 
+        // 後片付けは destroy シグナルに明示的に繋ぐ。PanelMenu.Button の
+        // _onDestroy() を上書きする書き方は gnome-shell 内部の実装詳細に
+        // 依存するため使わない。
+        this.connect('destroy', () => this._disconnectSourceChanged());
+
         this._sync();
     }
 
-    vfunc_button_press_event() {
+    // タッチ操作でも切り替えたいので button-press だけでなく touch も拾う。
+    // PanelMenu.Button 自身が BUTTON_PRESS と TOUCH_BEGIN の両方を見ているのと
+    // 同じ理由（Wayland ではタッチからポインタイベントが合成されない）。
+    vfunc_event(event) {
+        const type = event.type();
+
+        if (type === Clutter.EventType.BUTTON_PRESS) {
+            // 右クリックや中クリックで意図せず切り替わらないようにする
+            if (event.get_button() !== Clutter.BUTTON_PRIMARY)
+                return super.vfunc_event(event);
+        } else if (type !== Clutter.EventType.TOUCH_BEGIN) {
+            return super.vfunc_event(event);
+        }
+
         this._activateNextSource();
         return Clutter.EVENT_STOP;
     }
@@ -41,11 +59,14 @@ class ImeToggleButton extends PanelMenu.Button {
         if (sources.length < 2)
             return;
 
-        const current = this._inputSourceManager.currentSource;
-        const index = sources.indexOf(current);
-        const next = sources[(index + 1) % sources.length];
+        const index = sources.indexOf(this._inputSourceManager.currentSource);
+        // 現在のソースが特定できない場合（IBus の準備前など）は何もしない。
+        // 巡回の起点が決まらないまま任意のソースを有効化すると、表示と実際の
+        // 入力状態が食い違う原因になる。
+        if (index < 0)
+            return;
 
-        next.activate(true);
+        sources[(index + 1) % sources.length].activate(true);
     }
 
     // Super+Space など他の手段で切り替えた場合もここを通るので表示が追従する。
@@ -59,14 +80,12 @@ class ImeToggleButton extends PanelMenu.Button {
         this._label.add_style_class_name(isJapanese ? 'japanese' : 'latin');
     }
 
-    _onDestroy() {
+    _disconnectSourceChanged() {
         if (this._sourceChangedId) {
             this._inputSourceManager.disconnect(this._sourceChangedId);
             this._sourceChangedId = 0;
         }
         this._inputSourceManager = null;
-
-        super._onDestroy();
     }
 });
 
