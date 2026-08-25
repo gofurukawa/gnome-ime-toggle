@@ -1,0 +1,7 @@
+{
+  "uuid": "ime-toggle@gofurukawa.github.io",
+  "name": "IME Toggle",
+  "description": "Shows a large A / あ button in the top bar. Click it to switch between input sources.",
+  "shell-version": ["50"],
+  "version": 1
+}

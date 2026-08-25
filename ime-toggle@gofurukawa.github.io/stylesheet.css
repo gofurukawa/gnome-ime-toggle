@@ -1,0 +1,20 @@
+/* トップバーの高さに収まる範囲で、遠目でも読める大きさにする */
+.ime-toggle-label {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 2px 10px;
+    min-width: 24px;
+    text-align: center;
+}
+
+/* 英語 (US) */
+.ime-toggle-label.latin {
+    background-color: #1c71d8;
+}
+
+/* 日本語 (Mozc) */
+.ime-toggle-label.japanese {
+    background-color: #e66100;
+}
